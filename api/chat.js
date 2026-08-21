@@ -17,8 +17,8 @@ export default async function handler(req, res) {
 หน้าที่ของคุณคือตอบคำถามลูกค้าอย่างสุภาพ ประเมินราคาเบื้องต้น และแนะนำวิธีลงไฟล์หรือตั้งค่าโมเดลในเกมให้อัตโนมัติ`;
 
     try {
-        // ใช้ gemini-1.5-flash-latest ซึ่งเป็น Alias มาตรฐานของ Google REST API
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+        // ใช้ Endpoint gemini-3.6-flash ตามที่ต้องการ
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
