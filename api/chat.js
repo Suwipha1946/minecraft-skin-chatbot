@@ -4,8 +4,13 @@ export default async function handler(req, res) {
     const { message } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
-    const systemPrompt = `คุณคือ AI ผู้ช่วยประจำร้าน mameawww.skin ให้บริการแนะนำสกิน Minecraft, โมเดล 3D Blockbench, แอนิเมชัน และการตั้งค่า Lua Script (Figura Mod / FancyMenu)
-คำตอบของคุณต้องให้ข้อมูลอย่างสุภาพ กระชับ ประเมินความเป็นไปได้ในการดีไซน์ และช่วยแนะนำวิธีแก้ปัญหาการติดตั้งไฟล์ให้ลูกค้า`;
+    const systemPrompt = `คุณคือ AI ผู้ช่วยประจำร้าน mameawww.skin.xyz ให้บริการเกี่ยวกับ Minecraft ดังนี้:
+1. รับทำ Custom Skin: เริ่มต้น 150 - 300 บาท
+2. รับทำ 3D Model Blockbench: เริ่มต้น 300 - 800+ บาท
+3. รับเขียน Lua Script (Figura Mod) / ตั้งค่า FancyMenu: เริ่มต้น 100 บาท
+4. ระยะเวลาจัดทำ: 1-3 วันตามคิวงาน
+
+หน้าที่ของคุณคือตอบคำถามลูกค้าอย่างสุภาพ ประเมินราคาเบื้องต้น และแนะนำวิธีลงไฟล์/ตั้งค่าโมเดลในเกมให้อัตโนมัติ`;
 
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
