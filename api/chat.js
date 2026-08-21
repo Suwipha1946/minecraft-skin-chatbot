@@ -2,31 +2,19 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     const { message } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
+    const msg = (message || "").toLowerCase();
 
-    const systemPrompt = `คุณคือ AI ผู้ช่วยประจำร้าน mameawww.skin.xyz ให้บริการเกี่ยวกับ Minecraft ดังนี้:
-1. รับทำ Custom Skin: เริ่มต้น 150 - 300 บาท
-2. รับทำ 3D Model Blockbench: เริ่มต้น 300 - 800+ บาท
-3. รับเขียน Lua Script (Figura Mod) / ตั้งค่า FancyMenu: เริ่มต้น 100 บาท
-4. ระยะเวลาจัดทำ: 1-3 วันตามคิวงาน
+    let reply = "ยินดีต้อนรับสู่ร้าน mameawww.skin.xyz ครับ! สามารถสอบถามเรื่อง 'ราคาสกิน', 'ราคาโมเดล', 'คิวงาน' หรือ 'วิธีลงไฟล์ในเกม' ได้เลยครับ";
 
-หน้าที่ของคุณคือตอบคำถามลูกค้าอย่างสุภาพ ประเมินราคาเบื้องต้น และแนะนำวิธีลงไฟล์/ตั้งค่าโมเดลในเกมให้อัตโนมัติ`;
-
-    try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: `${systemPrompt}\n\nคำถามจากลูกค้า: ${message}` }]
-                }]
-            })
-        });
-
-        const data = await response.json();
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "ขออภัย ระบบไม่สามารถประมวลผลคำตอบได้ในขณะนี้";
-        return res.status(200).json({ reply });
-    } catch (error) {
-        return res.status(500).json({ reply: "เกิดข้อผิดพลาดในการประมวลผลระบบ AI" });
+    if (msg.includes("สกิน") || msg.includes("skin") || msg.includes("ราคา")) {
+        reply = "🎨 **รายละเอียดราคาสินค้าและบริการ:**\n- Custom Skin 2D/3D Layer: 150 - 300 บาท\n- 3D Model Blockbench: 300 - 800+ บาท (ขึ้นอยู่กับความซับซ้อน)\n- เขียน Lua Script (Figura Mod) / FancyMenu: เริ่มต้น 100 บาท";
+    } else if (msg.includes("คิว") || msg.includes("นาน") || msg.includes("เวลา")) {
+        reply = "⏳ **ระยะเวลาจัดทำ:** ปัจจุบันคิวงานอยู่ที่ประมาณ 1 - 3 วันหลังจากคอนเฟิร์มแบบและชำระมัดจำครับ";
+    } else if (msg.includes("ลง") || msg.includes("ติดตั้ง") || msg.includes("วิธี")) {
+        reply = "🛠️ **วิธีนำไฟล์เข้าเกม:**\n1. สำหรับ Skin: สามารถอัปโหลดผ่านเว็บ Minecraft.net หรือ Launcher ได้ทันที\n2. สำหรับ Figura Model: นำโฟลเดอร์โมเดลไปวางใน `.minecraft/figura/avatars` ได้เลยครับ";
+    } else if (msg.includes("สวัสดี") || msg.includes("หวัดดี") || msg.includes("hi") || msg.includes("hello")) {
+        reply = "สวัสดีครับ! สนใจสั่งทำ Skin, Blockbench 3D Model หรือปรับแต่งระบบเกม สอบถามรายละเอียดได้เลยครับ";
     }
+
+    return res.status(200).json({ reply });
 }
