@@ -8,7 +8,7 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .chat-container { width: 100%; max-width: 600px; background: #1e1e1e; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
         h2 { color: #55ff55; text-align: center; margin-bottom: 20px; }
-        .chat-box { height: 380px; overflow-y: auto; border: 1px solid #333; padding: 15px; border-radius: 8px; background: #2a2a2a; margin-bottom: 15px; }
+        .chat-box { height: 380px; overflow-y: auto; border: 1px solid #333; padding: 15px; border-radius: 8px; background: #2a2a2a; margin-bottom: 15px; white-space: pre-line; }
         .msg { margin-bottom: 12px; line-height: 1.4; }
         .user { color: #55ffff; font-weight: bold; }
         .bot { color: #ffff55; }
@@ -47,10 +47,12 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: text })
                 });
+                
                 const data = await res.json();
-                chatBox.innerHTML += `<div class="msg bot"><b>AI Consultant:</b> ${data.reply}</div>`;
+                const replyText = data.reply || data.error || "ไม่มีข้อมูลตอบกลับจากระบบ";
+                chatBox.innerHTML += `<div class="msg bot"><b>AI Consultant:</b> ${replyText}</div>`;
             } catch (err) {
-                chatBox.innerHTML += `<div class="msg bot" style="color:#ff5555;"><b>System:</b> เกิดข้อผิดพลาดในการเชื่อมต่อ</div>`;
+                chatBox.innerHTML += `<div class="msg bot" style="color:#ff5555;"><b>System Error:</b> เชื่อมต่อ Backend ไม่สำเร็จ (${err.message})</div>`;
             }
             chatBox.scrollTop = chatBox.scrollHeight;
         }
