@@ -1,18 +1,41 @@
-export default function handler(req, res) {
+export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     const { message } = req.body || {};
-    const text = String(message || "").toLowerCase();
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    let reply = "สวัสดีครับ! ยินดีต้อนรับสู่ร้าน mameawww.skin.xyz สามารถสอบถามเรื่อง 'ราคาสกิน', 'ราคาโมเดล Blockbench', 'คิวงาน' หรือ 'วิธีลงไฟล์ในเกม' ได้เลยครับ";
-
-    if (text.includes("สกิน") || text.includes("skin") || text.includes("ราคา")) {
-        reply = "🎨 **รายละเอียดราคาสินค้าและบริการ:**\n- Custom Skin 2D/3D Layer: 150 - 300 บาท\n- 3D Model Blockbench: 300 - 800+ บาท\n- เขียน Lua Script (Figura Mod) / FancyMenu: เริ่มต้น 100 บาท";
-    } else if (text.includes("คิว") || text.includes("นาน") || text.includes("เวลา")) {
-        reply = "⏳ **ระยะเวลาจัดทำ:** ประมาณ 1 - 3 วันหลังจากคอนเฟิร์มแบบและชำระมัดจำครับ";
-    } else if (text.includes("ลง") || text.includes("ติดตั้ง") || text.includes("วิธี")) {
-        reply = "🛠️ **วิธีลงไฟล์:**\n1. Skin: อัปโหลดผ่านเว็บ Minecraft.net หรือ Launcher\n2. Figura Model: นำโฟลเดอร์โมเดลไปวางใน .minecraft/figura/avatars";
+    if (!apiKey) {
+        return res.status(200).json({ reply: "ยังไม่ได้ตั้งค่า GEMINI_API_KEY ใน Vercel Environment Variables" });
     }
 
-    return res.status(200).json({ reply });
+    const systemPrompt = `คุณคือ AI ผู้ช่วยประจำร้าน mameawww.skin.xyz ให้บริการแนะนำและประเมินราคาเกี่ยวกับ Minecraft ดังนี้:
+1. รับทำ Custom Skin: เริ่มต้น 150 - 300 บาท
+2. รับทำ 3D Model Blockbench: เริ่มต้น 300 - 800+ บาท
+3. รับเขียน Lua Script (Figura Mod) / ตั้งค่า FancyMenu: เริ่มต้น 100 บาท
+4. ระยะเวลาจัดทำ: 1-3 วันตามคิวงาน
+
+หน้าที่ของคุณคือตอบคำถามลูกค้าอย่างสุภาพ ประเมินราคาเบื้องต้น และแนะนำวิธีลงไฟล์หรือตั้งค่าโมเดลในเกมให้อัตโนมัติ`;
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: `${systemPrompt}\n\nคำถามจากลูกค้า: ${message}` }]
+                }]
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+            return res.status(200).json({ reply: `API Error: ${data.error.message}` });
+        }
+
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "ขออภัย ไม่สามารถประมวลผลคำตอบได้";
+        return res.status(200).json({ reply });
+    } catch (error) {
+        return res.status(200).json({ reply: `Connection Error: ${error.message}` });
+    }
 }
