@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Skin & Model Consultant</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .chat-container { width: 100%; max-width: 600px; background: #1e1e1e; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        h2 { color: #55ff55; text-align: center; margin-bottom: 20px; }
+        .chat-box { height: 380px; overflow-y: auto; border: 1px solid #333; padding: 15px; border-radius: 8px; background: #2a2a2a; margin-bottom: 15px; }
+        .msg { margin-bottom: 12px; line-height: 1.4; }
+        .user { color: #55ffff; font-weight: bold; }
+        .bot { color: #ffff55; }
+        .input-area { display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #444; background: #333; color: #fff; font-size: 14px; }
+        button { padding: 12px 20px; border: none; border-radius: 6px; background: #55ff55; color: #000; font-weight: bold; cursor: pointer; }
+        button:hover { background: #44cc44; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>🎮 Minecraft Skin & Model Consultant</h2>
+        <div class="chat-box" id="chatBox">
+            <div class="msg bot"><b>AI Consultant:</b> สวัสดีครับ! ยินดีต้อนรับสู่ร้านบริการรับทำ Skin, Blockbench 3D Model และ Lua Script สอบถามประเมินราคา คิวงาน หรือวิธีลงไฟล์ในเกมได้เลยครับ!</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="พิมพ์คำถามของคุณที่นี่..." onkeydown="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()">ส่ง</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chatBox = document.getElementById('chatBox');
+            const text = input.value.trim();
+            if (!text) return;
+
+            chatBox.innerHTML += `<div class="msg user"><b>คุณ:</b> ${text}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await res.json();
+                chatBox.innerHTML += `<div class="msg bot"><b>AI Consultant:</b> ${data.reply}</div>`;
+            } catch (err) {
+                chatBox.innerHTML += `<div class="msg bot" style="color:#ff5555;"><b>System:</b> เกิดข้อผิดพลาดในการเชื่อมต่อ</div>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
